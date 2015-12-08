@@ -1,0 +1,92 @@
+Connectivity in Undirected Graphs
+1) Reachability
+    a) What parts of a graph are reachable from a given node?
+        i.e. What list of people are reachable from me? (Facebook).
+
+    b) An exploration procedure
+        The algorithm needs to mark where its been.
+
+        // Algorithm:
+        /*
+            input: Graph G = (V,E), node u \in V
+            output: visited[w] is set to TRUE
+                    for all nodes w reachable from u
+        */
+        procedure explore(G,u)
+            hello(u)
+            visited[u] = TRUE                   // Mark as explored
+            for all neighbors w of u:
+                if not visited[w]
+                    explore(G,w)
+            goodbye(u)
+
+    c) Does explore(G,u) work correctly?
+        i) Does it eventually halt?
+            Yes, it does halt.
+            explore(G,u) is called at most once for each node;
+            thereafter, the node is marked as visited.
+
+            We know that our algorithm only hits REACHABLE nodes, but do
+            we know if we missed anything?
+
+        ii) explore(G,u) walks from a node to its neighbors and therefore,
+        never leaves the region reachable from its starting point. But does
+        it fully identify this region?
+            An induction proof. When we are at distance 0, we see everything
+            at distance 1, when we're at distance 1 we see everything at
+            distance 2.
+
+            Claim:
+                explore(G,u) marks (as visited) all nodes within k hops
+                of u, for all k>=0 if by induction on k.
+
+            Base case:
+                k = 0. The only node at distance 0 is u itself,
+                which gets marked.
+
+            General case:
+                Assume it's true up to k-1. We'll show it's true for k.
+
+            ---
+
+            Pick any node z that is k hops from u:
+                (u)->()->()->...->(w)->(z)
+                ----------------  --------
+                    k-1 hops      last hop
+
+            Let w be the second last node on the path to z.
+            w is k-1 hops from u and therefore gets marked.
+            When w is explored, z will be noticed.
+
+2) Connectedness
+    a) An undirected graph is connected if any node is reachable from any
+    other.
+
+        e.g.    (a)-(b)  (c)-(e)
+                 |
+                (d)
+
+        is not connected. It has two connected components.
+
+        explore(G,u) only returns the connected component containing the
+        starting point.
+
+    b) explore(G,u) identifies the connected component containing u.
+        To find other components, restart explore elsewhere.
+
+    c) Depth first search
+
+        procedure dfs(G)
+            // Mark all nodes as unvisited (blow out all candles)
+            for all nodes u:
+                visited[u] = FALSE
+
+            cc = 1  // Connected Component
+            for all nodes u:
+                if not visited[u]:
+                    explore(G,u) // This will explore an entire component.
+                    connectedComponent++
+
+        // This creates an array so that we know which cc each node is in.
+        procedure hello(u)
+            ccNum[u] = cc

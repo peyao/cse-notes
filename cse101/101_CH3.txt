@@ -1,0 +1,35 @@
+Chapter 3
+
+3.1 - Why Graphs?
+    * A graph is specified by a set of vertices (or nodes) V and edges E.
+    * V = {1,2,3,...,13}
+    * For a directed graph
+        E = {1,2}, {9,11}
+    * For a directed graph:
+        E = (x,y)
+        This would be a directed edge from x to y
+
+    3.1.1 - How is a graph represented?
+        * We can represent a graph with an adjacency matrix.
+            If there are n = |V| vertices (v_1,...,v_n), this is an nxn array.
+            The (i,j)th entry is:
+                a_ij = { 1 if there is an edge from v_i to v_j, 0 otherwise }
+
+            For undirected graphs the matrix is symmetrical since an edge {u,v}
+            can be taken in either direction.
+
+            Pro: The presence of an edge can be checked in constant time
+            with just one memory access because this is just a nxn array.
+
+            Con: The matrix takes up O(n^2) space.
+
+        * Alternatively, we can represent a graph with an adjacency list.
+            An adjacency list consists of |V| linked lists, one per vertex.
+            The linked list for a vertex u holds the names of other vertices,
+            ones which u has an outgoing edge to (u,v) \in E.
+
+            Each edge appears in exactly one of the LLs if the graph is directed
+            or in two LLs if the graph is undirected.
+
+            Checking for an edge (u,v) is no longer constant time, as you need
+            to traverse a LL.

@@ -1,0 +1,128 @@
+1) Analyzing algorithms
+    The two questions always asked:
+        1. Does it return the correct answer?
+        2. How fast is it?
+2) Computing Fibonacci numbers
+    a) Fibonacci's famous sequence:
+        F0 = 0, F1 = 1, F(n) = F(n)-1 + F(n)-2
+        0,1,1,2,3,5,8,13,21,34,55,89,144
+        These numbers grow fast:
+            * F30 > a million
+            * In fact, exponentially fast (F(n) approx. 2^(0.7n))
+    b) Let's look at a simple recursive algorithm.
+        for computing function F(n)
+        function Fib(n)
+            if n=0: return 0
+            if n=1: return 1
+            return Fib(n-1) + Fib(n-2)
+    c) Does the algorithm return the right answer?
+        Yes: it is directly implementing the definition of F(n).
+    d) How long does it take?
+        Let T(n) = # of operations performed by Fib(n)
+            T(0) = 1
+            T(1) = 2
+            T(n) = T(n-1) + T(n-2) + 3
+        We have no idea what the solution for this is.
+        But we know for sure it is more than F(n).
+            T(n) > F(n)
+        This means that F(n) is exponential.
+        That is, the running time of this alg. is exponential.
+        Exponential time algs. should only be used on small inputs.
+
+3) How bad is exponential time?
+    a) Computing Fib(200) would take >= F_200, approx. 2^(140) operations.
+        Lets just says we're running this on the fastest computer in the world.
+        Currently it is the TIanhe-2, which does 34 quadrillion operations/s.
+            34 quadrillion is approx. 2^(55).
+        Therefore, takes 2^(85) seconds.
+    b) Time scales
+        Time in seconds    Interpretation
+        ---------------    --------------
+        2^10                17 minutes
+        2^20                12 days
+        2^30                32 years
+        2^40                Cave paintings
+        2^45                Homo Erectus discovers fire
+        2^51                Extinction of dinosaurs
+        2^60                Creation of the universe
+
+        Our little recursive Fib function would take 2^85.
+        So it's time to look for an alternate algorithm.
+
+4) Can we do better?
+    a) Unravel recursion
+        F(n)    -> F(n-1)   -> F(n-2)   -> F(n-3)
+                                        -> F(n-4)
+                            -> F(n-3)   -> F(n-4)
+                                        -> F(n-5)
+                -> F(n-2)   -> F(n-3)   -> F(n-4)
+                                        -> F(n-5)
+                            -> F(n-4)   -> F(n-5)
+                                        -> F(n-6)
+        We see that the algorithm keeps repeating the same calculations!
+    b) Instead: store intermediate results.
+        function Fib2(n)
+            Create array f[0..n]
+            f[0] = 0
+            f[1] = 1
+            for i = 2 to n
+                f[i] = f[i-1] + f[i-2]
+            return f[n]
+    c) Is Fib2 correct?
+        Yes.
+    d) Running time of Fib2?
+        O(n), also known as linear time.
+    e) Huge breakthrough in efficiency.
+        From Fib, which is O(2^0.7n), exponential.
+        To Fib2, which is O(n), polynomial.
+        Can now easily computer F_200 or F_200000 with Fib2.
+        Moral: the right algorithm makes all the difference.
+        Things to note:
+            Creating an array is O(n).
+            Setting values is 1 operation.
+            However, addition is not a single operation.
+                It may be if the number is 32 bit or 64 bit, but a large
+                fib number may not fit within a single operation.
+
+5) Fix running times
+    a) Our running times for Fib and Fib2 are not correct because we were
+    treating addition as a single operation.
+        If we look at F_n, it is approx. 2^(0.7n)
+            Which is O(n) bits long, 0.7 bits in this case.
+        Adding arbitrary large numbers is not constant time.
+    b) Adding n-bit numbers.
+                10101110001
+            +   11100001101
+                -----------
+        Adding two n-bit numbers takes O(n).
+    c) Corrected running times
+        Fib     O(n*2^(0.7n))   Exponential
+        Fib2    O(n^2)          Polynomial
+
+6) Comparing running times
+    a) Exponential time is bad!
+        Algorithms that take exponential time:
+            2^n
+            3^n
+            1.1^n
+            2^(n)^(1/2)
+            n^(2)*2^(n)
+        These algorithms are only feasible only on the tiniest inputs.
+    b) The first order of business is to find a polynomial algorithm
+    (if possible).
+        Polynomial time examples:
+            n^3
+            n^4
+            n^20
+            n^(2)*log(n)
+    c) In general just start with an algorithm that works exponential time,
+    and try to improve it to work polynomial time. Then once we have the
+    polynomial solution, we can look for even more efficient solutions.
+            linear(n) << nlogn << quadratic(n^2) << cubic(n^3)
+        We are looking for BIG distinctions when looking for efficiency.
+    d) All these differences are far more significant than differences in
+    leading constants.
+        e.g.    20n vs 10n  Just write both as O(n).
+
+Homework due next Friday on Gradescope. Quiz on next Friday.
+HW & Quiz every Friday.

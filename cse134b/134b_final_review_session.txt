@@ -1,0 +1,195 @@
+Final Review
+------------
+
+Outline:
+    > Application Architecture
+    > HTTP
+    > HTML, CSS
+    > JS
+    > AJAX
+    > Many others
+
+---
+
+Application Architecture:
+    > Why is application architecture important?
+    > Identify different types and pros/cons for each type.
+        - Full server-side
+        - Full server-side + optional JS
+        - AJAX Style (traditional)
+        - AJAX Sync Model Style
+        - Full Client-Side
+    > So how do you know when to use which type?
+
+Practice - HTTP
+
+____ /index.html HTTP/1.1
+_________: Mozilla/4.0 (compatible; Windows NT)
+Host: _______
+_____: en-us
+_____: gzip, deflate
+Connection: Keep-Alive
+________________________
+__________ 200 ______
+Server: Apache/1.3.27 (UNIX)
+Content-Length: 19372
+_______: text/html
+
+---
+
+GET /index.html HTTP/1.1
+User-Agent: Mozilla/4.0 (compatible; Windows NT)
+Host: _______
+_____: en-us
+_____: gzip, deflate
+Connection: Keep-Alive
+________________________
+__________ 200 ______
+Server: Apache/1.3.27 (UNIX)
+Content-Length: 19372
+_______: text/html
+
+---
+
+Original Task:
+    > Fill in the blank
+Suppose this HTTP request returns following JSON object
+    { message: "Page Not Found" }
+    > What's wrong with the response on left?
+    > How should you fix it?
+    > How can you handle this for AJAX?
+
+---
+Law of Three
+
+---
+Practice - HTML
+    > Write a HTML code that results the screenshow shown left.
+        - mudkip.png
+        - support.php
+    > It should be pure HTML
+        - No CSS and No Javascript
+    > It should look exactly like the left one.
+        - On ALL BROWSERS
+    > What are some traps here?
+    > Does this follow UCD? Support with theories.
+
+---
+Practice - CSS
+    > Revise your HTML code to ugly screenshot shown on left.
+        - style.css
+    > You can use CSS this time, but JS is still out of the question.
+        - Avoid using classes and IDs
+    > It should look exactly like the left one.
+    > What are some traps here?
+        - Consider pseudo-classes and selectors
+    > Does this follow UCD? Support with theories.
+
+---
+DOM, style, and events
+
+Using VanillaJS, perform following:
+    > Upon clicking "I <3 Mudkip" button, it should check if appropriate
+        inputs are filled up for email and command.
+    > If inputs valid, it should use AJAX to enlarge Mudkip image and show
+        a popup box stating "Thank you for supporting Mudkip."
+    > Also, hide the form section
+
+---
+Recap
+
+> Many topics are not covered through practice problems above.
+> For HTML and CSS, refer to Midterm Review and Midterm exam.
+> Understand the relationship between HTML and JS
+    - <script>alert("<script>Corgi</script>");</script>
+    - <input onclick="alertTest()";">
+    - document.getElementById("myH1").style.color = "red";
+> Resources:
+    - w3schools.com/js/js_htmldom.asp
+    - .../jsref/dom_obj_style.asp
+    - .../js/js_events.asp
+
+---
+Tricky Javascript
+
+> www.youtube.com/watch?v=FqhZZNUyVFM
+> www.toptal.com/javascript/interview-questions
+> IIFE, XSS, closure, == vs ===, callback functions
+> Weakly typing and ambiguous arithmetic operations:
+    - 1/0 is ?
+    - (1+'6')/7
+    - 0/0 + "hi"
+    - -'6'*7/'2'
+    - 0 == false
+
+> IIFE (What does this have to do with defensive coding?):
+    (function hi() { ... })();
+
+---
+AJAX - vanilla style
+
+function createXHR() {
+    try { return new XMLHttpRequest(); } catch(e) { }
+    try { return new ActiveXObject("Msxml2.XMLHTTP.6.0")}
+    ...
+}
+
+function sendRequest() {
+    var xhr = createXHR();
+    if (xhr) {
+        xhr.open("GET", "http://url.com/cries.php", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200)
+                // DO something
+        };
+        xhr.send(null);
+    }
+}
+
+// And what is 'readystate'?
+
+---
+AJAX
+> To understand AJAX, you must understand HTTP and Networking
+> Using Vanilla JS, how do you handle following with AJAX?
+    - Authentication
+    - MIME type
+    - Multipart Response
+    - Character Encoding
+    - Headers
+> XML vs JSON vs CSV vs YAML (pros & cons)
+> Task: Try to implement AJAX library
+
+---
+Practice - Free Response
+
+Suppose that executives in your company want to create VR program
+to help give inspirations for artists and musicians. Due to their lack
+of knowledge in tech, they suggest engineers to create this VR product
+in HTML, CSS, and JS. As a web expert, explain why this product is good
+idea or not.
+    - No right answers, but one answer may get you more pts than others.
+    - Hint: Think about different perspectives, security, performance, etc.
+
+---
+General Tips
+
+> Review Midterm
+    - Web Programming Toolbox
+    - Usability Theories (you can look at midterm review too)
+    - Client-server relationship
+> Attend lectures
+    - Because he takes attendance
+    - "Was it tradeoff or green?"
+> Don't memorize! Understand the concept! Practice coding!
+> Free response. Avoid lengthy details unless you are prompted to do so.
+> Is it maybe, sometimes, kind of, both, etc...?
+    - Really know what each thing means.
+    - Hint: If one of these are choices, that is most likely the answer.
+> Research beyond lecture materials (if you have time)
+    - It doesn't hurt. In fact, you will have an advantage over others.
+    - Expect the unexpected.
+> Think like an engineer.
+    - Understand the tradeoff. Explain why you chose one over another.
+    - When you study each concept, think of tradeoff for that concept.
+> Get some sleep.

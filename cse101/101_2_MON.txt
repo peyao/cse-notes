@@ -1,0 +1,145 @@
+* Homework is 10% of grade (lowest dropped).
+* Quiz is 20% of the grade (lowest dropped).
+* Quiz is like an easier version of the homework.
+* Stick with the right discussion section.
+---
+* There are million things we want to do with a computer,
+do we need a million algorithms?
+    * If we abstract out our problems, we'll realize that there are much fewer.
+    * Language (we use 2)
+        * Graphs
+        * Matrices and vectors
+---
+Graph Algorithms
+1) Why graphs?
+    a) Map coloring
+        We want to assign each country a color, making sure bordering countries
+        have different colors.
+
+            Color each country:
+                * Neighboring countries should be different colors.
+                * Use as few colors as possible.
+
+        Maps are covered with irrelevant information (rivers, country names,
+        city names). It clouds our judgment and makes it difficult to solve
+        our problem. We should just pull out the info we need.
+
+        Create a graph:
+            We have 7 countries on the map.
+            Create a node for each country.
+            We just care about which countries are neighbors of each other.
+
+            * NODE for each country.
+            * EDGE between neighboring countries.
+
+            Abstract we need, and remove info we don't need.
+            Then all we need to do is color the nodes.
+
+            This is called GRAPH COLORING.
+
+        Graph coloring:
+            * Give each node a color.
+            * Neighbors must have different colors.
+            * Use as few colors as possible.
+
+    b) Example: Animal Crossing
+        A large number of animals need to be ferried across a river.
+        * Use as few boats as possible.
+        * Cannot put two animals on the same boat if one will eat the other.
+
+        Why is this a map coloring problem?
+
+        We don't care about colors of animals, what type of animal they are,
+        if they have fur, etcetera...
+
+        So then what are the nodes and edges?
+
+        Create a graph:
+            * NODE for each animal.
+            * EDGE between two animals if one can eat the other.
+
+        This is GRAPH COLORING again. But this time, different colored
+        nodes mean different boats.
+
+2) Graphs, formally.
+    a) G = (V, E)
+        G: Graph
+        V: Nodes/Vertices
+        E: Edges
+
+        Edges can be:
+            * Undirected    (No arrow)      (a)-(b)     {a,b}
+            * Directed      (Arrow)         (a)->(b)    (a,b)
+
+        Facebook friends:
+            People are nodes.
+            Edges mean two people are friends.
+            Edges are undirected.
+
+        Instagram:
+            People are nodes.
+            Edges mean one person is following another.
+            Edges are directed.
+
+        WWW:
+            Huge undirected graph.
+
+        The algorithms we come up with, we want to run on these kinds of
+        huge graphs, undirected and directed.
+
+    b) Typical computer representation of graphs: Adjacency List
+        For each node, keep a list of its neighbors.
+
+            Ex: a b
+                |/
+                b-d
+
+                V       E
+                - -------------
+                a -> c
+                b -> d -> c
+                c -> a ->b -> d
+                d -> b -> c
+
+            Ex: b<-a->c
+
+                a -> c -> b
+                b
+                c
+
+        Features:
+            * Given any node, we can easily iterate through its neighbors.
+                This is a super useful primitive in graph algorithms.
+                If a node has 10 neighbors we just need 10 actions.
+            * Checking for the presence of a particular edge (such as if
+                two nodes have an edge in between them) is O(V) which is slow.
+                We don't want to do this with adjacency lists.
+            * What is the size of this data structure?
+                Just in general.
+                Size of this data structure is V + 2E.
+
+    c) Size of adjacency list, undirected case.
+        a -> c
+        b -> d -> c
+        c -> a -> b -> d
+        d -> b -> c
+        - --------------
+        ^ ^
+        | |
+        | 2E items total (each edge produces 2 linked list entries).
+        V Items
+
+        Total size = O(V+E)
+        It's not O(V+2E) because Big O eats up the leading constant.
+
+        For any node u,
+            deg(u)  = degree(u)
+                    = # of neighbors of u
+
+            SUM(deg(u), u \in V) = 2E
+
+    d) Directed case
+        Size is again O(V+E).
+
+    e) We call a graph algorithm LINEAR, if its running time is O(V+E).
+        If you can manage to do it in O(V+E) then you're doing really good!

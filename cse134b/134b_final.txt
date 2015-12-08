@@ -1,0 +1,442 @@
+Web App Architecture Styles
+---------------------------
+
+- Full Server Side
+    - Present HTML form
+    - User adds data
+    - Submits data to server via HTTP browser controlled
+        - GET or POST (hope it is POST!)
+    - Server-side data decode
+    - Validate data
+    - If valid, return page showing added data, else return with form and
+        error messages.
+
+- Traditional Full Server Side + Optional JS
+    - Present HTML form
+    - User adds data
+    - (JS) If valid allow submit
+        else: update form showing error messages
+        - Warning: This can be bypassed.
+    - Submits data to server via HTTP browser controlled
+        - GET or POST (hope it is POST!)
+    - Server-side data decode
+    - Validate data again server-side
+    - If valid, return page showing added data,
+        else: return with form and error messages.
+
+- AJAX Style Traditional
+    - Present HTML Form
+    - User adds data
+    - (JS) If valid, allow submit.
+        Else, update form showing error messages.
+        Warning: This can be bypassed.
+    - Submits data to server via HTTP using JS.
+        - GET or POST (hope it is POST!)
+    - Server-side data decode
+    - Validate data gain server-side (see warning above)
+    - If valid, return success packet (likely JSON),
+        Else return error packet
+    - Depending on packet, repaint the screen.
+
+- AJAX Sync Model Style
+    - Present HTML form
+    - User adds data
+    - (JS) If valid, allow saving to local client-side storage,
+        Else: Update form showing error messages.
+        Warning: this can be bypassed.
+    - Local data store changed so sync data to server via HTTP or
+        WebSocket using JS
+    - Server-side data decode
+    - Validate data again server-side
+    - If valid, update remote data store and send success packet
+        (likely JSON) showing things in sync,
+        Else: return error packet
+    - Depending on packet state, may repaint the screen.
+
+- Next up Full Client-side?
+    - Is that still a web app?
+
+- The later models are faster, but "dangerous"
+    - Less transmission data wise, but room for errors unless we assume
+        network issues can happen.
+    - The older models are easier to implement and more "robust" in some
+        ways, but ultimately fail from usability concern.
+        - Network round-trip response times never beat a local update!
+    - Conclusion: We better understand the network part!
+
+HTTP Overview
+-------------
+
+## It's all about the network...
+
+- If you want to really do web programming right, you will need to know the
+  ins and outs of HTTP.
+    - If the network has problems you/users have problems much more than you
+      are probably aware.
+- Sadly most don't know as much as they think they do.
+    - Easily demo'd by performance and security problems.
+    - A few tests:
+        - URLs - case sensitive? length?
+        - GET vs POST?
+        - Cookies
+        - 'Layer 8' Error Connection - The meat layer
+
+## HTTP Intro
+- HTTP (Hypertext transfer protocol)
+    - It's an "application layer protocol" similar to SMTP, POP, IMAP,
+        NNTP, FTP, etc...
+    - Simple protocol that defines the standard way that clients request
+        data from web servers and how these servers respond.
+    - Three versions have been used: 0.9, 1.0, 1.1, and two are still
+        commonly used:
+        - RFC 1945 HTTP 1.0 (1996)
+        - RFC 2616 HTTP 1.1 (1999)
+
+## HTTP and TCP/IP
+
+    HTTP sits atop the TCP/IP Protocol Stack
+
+        Application Layer           HTTP
+        Transport Layer             TCP
+        Network Layer               IP
+        Data Link Layer             Network Interfaces
+
+- IP provides packets that are routed based on source and destination
+    IP addresses.
+
+- TCP provides segments that ride inside the IP packets and add connection
+    information based on source and destination ports.
+    - The ports let TCP carry multiple protocols that connect services
+        running on default ports.
+            HTTP on port 80
+            HTTPS on port 443
+            FTP on port 21
+            SMTP on port 25
+            SSH on port 22
+
+- TCP also provides mechanisms to make the connection a reliable bit pipe.
+    - 3 way handshake, sequence numbers, checksums, control flags
+    - A data stream is chopped up into chunks that are reassembled, complete
+        and in correct order on the other endpoint of the connection.
+
+- TCP segments, riding inside IP packets, carry the chunks of data.
+    - When HTTP is the Application Layer protocol on top of the stack,
+        these chunks of data are the contents of the HTTP message.
+
+
+    HTTP Message's data stream is chopped up into chunks small enough
+    to fit into a TCP segment.
+
+    The chunks ride inside TCP segments used to reassemble them correctly
+    on the other end of the connection.
+
+    The segments are shipped to the right destination inside IP datagrams.
+
+## HTTP over TCP/IP Issues?
+
+- HTTP/1.0 opens and closes a new TCP connection for each operation.
+    Since most web objects are small, this practice means a high fraction
+    of packets are simply TCP.
+
+- And the previous point to TCP's slow start congestion control mechanism
+    and you find HTTP/1.0 operations use TCP at its least efficient.
+
+- HTTP/1.1 addresses these concerns with persistent connections using
+    Keep-Alive.
+
+## Familiar Basic HTTP Request/Response Cycle
+HTTP Client -> HTTP Request -> HTTP Server
+            <- HTTP Response
+
+## Types and Uses of Proxy Servers
+- Proxies are HTTP Intermediaries
+    - All act as both clients and servers
+    - Friend and foe to web-devs
+
+- Major types of proxies can be distinguished by where they live and how
+    they get traffic
+    - Explicit
+    - Transparent/Intercepting
+    - Reverse/Surrogate
+
+- Three primary uses for proxies
+    1. Security
+    2. Performance
+    3. Content Filtering
+
+## HTTP Requests
+- HTTP requests and responses are both types of Internet Messages (RFC 822),
+    and share a general format: (The Law of Three Idea)
+    1. A Start Line, followed by a CRLF
+        - Called a Request Line for requests
+        - Call a Status Line for responses
+    2. Zero or more Message Headers
+        - field-name ":" [field-value] CRLF
+        - Terminated by : An empty line
+            - Two CRLFs mark the end of the Headers
+    3. Optional Message Body if there is a payload
+        - All or part of the "Entity Body" or "Entity"
+
+## Making a simple HTTP request
+- You can do the last example with a tool or just use telnet to access
+    the default HTTP port 80.
+
+        GET / HTTP/1.1
+        Host: www.ucsd.edu
+        Connection: close
+        User-Agent: Sam Spade 1.14
+
+        HTTP/1.1 200 OK
+        Date: Thu, 01 Jul 2004 16:07:00 GMT
+        Server: Apache/1.3.27 (Unix)
+        Last-Modified: Thu, 01 Jul 2004 16:01:00 GMT
+        ETag: "randomString"
+        Accept-Ranges: bytes
+        Content-Length: 30687
+        Connection: close
+        Content-Type: text/html
+
+        <!doctype html>
+        ...
+        </html>
+
+        ---
+
+        GET /badurl HTTP/1.1
+        Host: www.pint.com
+        Connection: close
+        User-Agent: Sam Spade 1.14
+
+        HTTP/1.1 404 Not Found
+        Content-Length: 16592
+        Content-Type: text/html
+        Server: Microsoft-IIS/6.0
+        Date: Thu, 01 Jul 2004 16:57:38 GMT
+        Connection: close
+
+        <!doctype html>
+        ...
+        </html>
+
+## A Closer Look at the Request Line
+- Consists of three major parts
+    - The Request Method followed by a space
+        - Methodsin HTTP 1.1 include:
+            GET, POST, HEAD, TRACE, OPTIONS, PUT, DELETE, and CONNECT
+        - GET, POST, HEAD are the most common
+        - Extension methods such as those specified by WebDav
+    - The Request URI followed by a space
+        - The URL associated with the resource to be fetched or acted upon
+    - The HTTP version followed by the CRLF
+
+## A Closer Look at the Request Methods
+- GET
+    - By far most common method
+    - Retrieves a resource from the server
+    - Supports passing of query string arguments
+- HEAD
+    - Retrieves only the Headers associated with a resource but not
+        the entity itself
+    - Highly useful for protocol analysis, diagnostics
+- POST
+    - Allows passing of data in entity rather than URL
+    - Can transmit of far larger arguments than GET
+    - Arguments not displayed in the URL
+
+## More Request Methods
+- OPTIONS
+    - Shows methods available for use on the resource (if given a path)
+        or the host (if given a "*")
+- TRACE
+    - Diagnostic method for assessing the impact of proxies along the
+        request-response chain
+- PUT, DELETE
+    - Used in HTTP publishing (e.g., WebDav)
+- CONNECT
+    - A common extension method for Tunneling other protocols through HTTP
+- There's even more methods if you look at WebDav
+
+## Why do I care?
+- Well if you are doing Web programming you may have to form raw requests
+    with headers ourselves.
+    - Example in JS using AJAX you will have to form raw HTTP requests
+        using GET and POST (or even HEAD if you like) to transmit data.
+
+xmlhttp = ajaxhttp();
+xmlhttp.open("POST", url, true);
+xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+xmlhttp.send("ret=" + escape(param));
+
+    - Of course some libraries might hide this from you, but you are just
+        abstracting to a parameter or flag.
+    - Also in HTML forms when you set the action attribute
+        <form action="GET|POST">
+        you are specifying the HTTP method to transmit your data.
+
+## A Closer Look at the Request URI
+- Absolute URI vs Absolute Path
+    - Explicit Proxies Require Absolute URIs
+        - Client is connected directly to the proxy
+        - Protocol and host name needed to resolve request
+        - You might need full URLs too esp. for web services
+            - Watch out for www vs. no www issues
+    - Grammar of the Absolute Path
+        - Like Absolute URI minus the "http://hostname"
+        - Initial "/" equivalent of the host's document root
+        - In HTTP 1.1 with name-based virtual hosting Host header
+            directs request to appropriate document root
+
+## The HTTP Response
+- Response status line consists of three major parts
+    - The HTTP version followed by a space
+    - Status Code followed by a space
+        - 5 groups of 3 digit integers indicating the result of the attempt
+            to satisfy the request.
+        - 1xx are informational.
+        - 2xx are success codes.
+        - 3xx are for alternate resource locations (redirects)
+        - 4xx indicate client side errors.
+        - 5xx indicate server side errors.
+    - The "Reason Phrase" followed by the CRLF
+
+## Observation - One way Requests and 204s
+- There are many details to HTTP that people don't consider but are highly
+    useful. One example is 204 responses which send back no data.
+- Observe Google using this in its search results page to send what I
+    dub a "flare gun" request to see what exactly the user clicked on.
+    - The purpose of this is for improving search quality and defeating
+        those folks who reverse engineer the Google algorithm, the
+        "human filter if you like".
+
+## HTTP Headers
+- Headers come in four major types, some for requests, some for responses,
+    some for both:
+    - General Headers
+        - Provide info about messages of both kinds
+    - Request Headers
+        - Provide request-specific info
+    - Response Headers
+        - Provide response-specific info
+    - Entity Headers
+        - Provide info about request and response entities
+    - Extension headers are also possible
+
+## A Closer Look at General Headers
+- Connection - Lets clients and servers manage connection state
+    - Connection: Keep-Alive (HTTP 1.0)
+    - Connection: close (HTTP 1.1)
+- Date - When the message was created
+    - Date: Sat, 31-May-03 15:00:00 GMT
+- Via - Shows proxies that handled message
+    - Via: 1.1 www.myproxy.com (Squid/1.4)
+- Cache-Control - Among the most complex of headers, enables caching
+    directives
+    - Cache-Control: no-cache
+
+## Why do I care? - Unfriendly Caches
+- If you are issuing a GET request and you do it again the browser will
+    not bother to talk to the server (depending on browser settings
+    including defaults), but instead will pull the data from cache.
+    This can cause a lot of screw-ups.
+    - Example - someone looking at stale content
+    - Example - Problems with AJAX style apps never waking up because
+        browser using cached data
+- Obvious solution to "stale caches" is to add cache control headers
+    (or to change resource names) but then again that does defeat the value
+    - Better to know about caching and do it properly
+    - Consider typical web pages, what would you want to cache?
+
+## A Closer Look at Request Headers
+- Host - The hostname (and optionally port) of server to which request
+    is being sent.
+    - Required for name-based virtual hosting
+    - Host: www.port80software.com
+- Referer - The URL of the resource from which the current request URI came
+    - Misspelled in the specification
+    - Referer: http://www.host.com/login.asp
+- User-Agent - Name of the requesting application, used in browser sensing
+    - User-Agent: Mozilla/4.0 (Compatible; MSIE 6.0)
+
+## Some more Request Headers
+    - Accept and its variants - Inform servers of client's capabilities
+        and preferences
+        - Enables content negotiation
+        - Accept: image/gif, image/jpeg;q=0.5
+        - Accept-Language
+        - Accept-Encoding
+        - Accept-Charset
+    - If-Modified-Since and other conditionals
+        - Frequently used by browsers to manage caches
+        - If-Modified-Since: Sat, 31-May-03 15:00:00 GMT
+    - Cookie - How clients pass cookies back to the servers that set them
+        - Cookie: id=23432;level=3
+
+## Using Request Headers; Browser Sniffing
+- User-Agent is often used in browser detection to serve different type
+    of pages to different types of access agents.
+    - Similarity problem
+        - Everything looks like old "Mozilla"
+    - Spoofing or removing problem
+- Better approach is to take this and add in an injected script or program
+    that profiles the device.
+- In the long run as device diversity grows the concept of browser will
+    evolve significantly.
+
+## Using Request Headers: Anti-Leeching
+- Oftentimes people may leech your bandwidth with direct hotlinking to
+    your object (GIF, Flash, etc...) without fetching the other related
+    objects
+    - This certainly would be bad if your biz model was about people
+        seeing the related ads around the 'stolen' object.
+- Since the referer header is sent from the base page, a simple form
+    of anti-leeching is to check for it before sending a dependent object.
+- Of course the bad guy now moves to forge the header.
+
+## Using Request Headers: Content Negotiation
+- User-Agent sends Accept header indicating type of content it can handle.
+
+    GET /images/HF_servermask HTTP/1.1
+    Host: www.port80software.com
+    User-Agent: Mozila/5.0 (Windows; U; Windows NT 5.1; en-US)...
+    Accept: image/png,image/jpg,image/gif;q=0.2,*/*;q=0.1
+    Accept-Language: en-us;en;q=0.5
+    Accept-Encoding: gzip,deflate
+    Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+
+## Using Request Headers: HTTP Compression
+- Compressed HTTP is enabled via Accept headers
+- User agent sends header indicating compression acceptance (gzip or deflate).
+    Server using mod_gzip, httpZip, etc., sends compressed content or not.
+- Works only on test (HTML,CSS,JS) but with compression up to 70% or more.
+- Time to first byte increased so high speed connections may not see as
+    much benefit, though bandwidth is saved. Low speed clearly sees benefit.
+
+## Compression Considerations
+- Some Considerations
+    - Increased origin server CPU (or wasted cycles?)
+    - TTFB vs TTLB considerations and LANs
+    - Decompress times
+    - Nasty little bugs
+- Despite any weaknesses, anybody in the know uses compression.
+
+## Response Headers
+- Server - The server's name and version
+    - Server: Microsoft-IIS/7.0
+    - Can be problematic for security reasons
+    - Security by obscurity?
+- Vary - Tells client & proxy caches which headers were used for content
+    negotiation.
+    - Vary: User-Agent, Accept
+- Set-Cookie - This is how a server sets a cookie on a client
+    - Set-Cookie: id=234; path=/shop; expires=Sat, 31-May-03 15:00:00 GMT;
+        secure
+
+## A Closer Look at Entity Headers
+- Allow - Lists the request methods that can be used on the entity
+    - Allow: GET, HEAD, POST
+- Location - Gives the alternate or new location of the entity
+    - Used with 3xx response codes (redirects)
+    - Location: http://www.ibm.com/us
+- Content-Encoding - specifies encoding performed on the body of the
+    response
+    - Corresponds to Accept-Encoding request header
